@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<script type="text/javascript" src="js/jquery/2.0.0/jquery.min.js"></script>
+		<link rel="stylesheet" href="css/bootstrap/3.3.6/bootstrap.min.css" />
+		<script type="text/javascript" src="js/bootstrap/3.3.6/bootstrap.min.js"></script>
+		<link rel="stylesheet" href="css/style.css" />
+		<link rel="stylesheet" href="css/main.css" />
+		<link rel="stylesheet" href="css/element-ui.css">
+		<script type="text/javascript" src="js/vue.min.js"></script>
+		<script src="js/element-ui.js"></script>
+		<link rel="stylesheet" href="css/buttons.css" />
+		<link rel="stylesheet" href="css/myGit.css" />
+		<link rel="stylesheet" href="css/editInfo.css" />
+		<title>个人中心--稷下新闻</title>
+	</head>
+
+	<body>
+		<div id="app">
+			
+			<nav class='navbar navbar-inverse navbar-fixed-top'>
+				<div class='container'>
+					<div class='navbar-header'>
+						<a href='index.html'>
+							<img src='img/Logo.png' />
+							<p>稷下新闻</p>
+						</a>
+					</div>
+					<div class='collapse navbar-collapse' id='example-navbar-collapse'>
+						<ul class='nav navbar-nav _nav'>
+							<li class='active'>
+								<a href='index.html'>
+									<span class='glyphicon glyphicon-home'></span> 首 页</a>
+							</li>
+							<li>
+								<a href='inLand.html'>国内</a>
+							</li>
+							<li>
+								<a href='outLand.html'>国际</a>
+							</li>
+							<li>
+								<a href='#'>军事</a>
+							</li>
+							<li>
+								<a href='gitMaster.html'>警法</a>
+							</li>
+							<li class='dropdown'>
+								<a href='#' class='dropdown-toggle' data-toggle='dropdown'>
+									专题<b class='caret'></b>
+								</a>
+								<ul class='dropdown-menu'>
+									<li>
+										<a href='#'>专题1.0</a>
+									</li>
+									<li>
+										<a href='#'>专题1.1</a>
+									</li>
+									<li>
+										<a href='#'>专题1.2</a>
+									</li>
+									<li class='divider'></li>
+									<li>
+										<a href='#'>专题2.0</a>
+									</li>
+									<li class='divider'></li>
+									<li>
+										<a href='#'>专题3.0</a>
+									</li>
+								</ul>
+							</li>
+						</ul>
+						<div class='navbar-right' style="color: white; margin-top: 10px;">
+							<span>嗨，欢迎来稷下新闻</span> 
+							<a href="editInfo.html"><span>{{username}}</span></a>
+							<a href="login_register.html" v-if="btnM" class="button button-primary button-rounded button-small">登录</a>
+						</div>
+
+					</div>
+
+				</div>
+
+			</nav>
+			<div class="container">
+				<div class="Info_Header">
+					<div class="Info_bg">
+					</div>
+					<div class="Info_pro">
+						<div class="col-xs-4 my_ico">
+							<img class="img-thumbnail" src="img/banner_focus.jpg" />
+						
+						</div>
+						<div class="my_pro" style="float: left">
+							<h2>国际新闻</h2>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="container">
+				<div class=" main_body">
+					<div class="line1 row">
+							<div class="col-xs-8 base panel panel-default">
+								<div class="partNews">
+								<div class="el-card__header bg-white" style="font-size: 20px;">
+									最新发布
+								</div>
+								<div class="grid-content bg-white" class="content">
+									<div v-for="(news, index) in newsOutland" class="text item" style="font-size: 20px; margin-bottom: 10px;margin-left: 30px;">
+										<a :label="news.id" @click="openNews(news)" href="#">
+											{{news.title}} </a>
+									</div>
+								</div>
+							</div>
+							</div>
+							<div class="col-xs-4">
+								<img class="img-thumbnail" src="img/ads.jpg" />
+							</div>
+					</div>
+				</div>
+
+			</div>
+
+		</div>
+		</div>
+		<div class="container footer">
+			<div class="row">
+				<div class="ft-link">
+					<a href="#">联系我们</a>
+					<span>|</span>
+					<a href="#">招贤纳士</a>
+					<span>|</span>
+					<a href="#">投诉建议</a>
+				</div>
+				<div class="ft-rights">
+					Copyright Chen Xiansen　©1998-2017
+				</div>
+			</div>
+		</div>
+		</div>
+		<script>
+			new Vue({
+				el: '#app',
+				data() {
+					return {
+						username:'',
+						newsOutland: {},
+						user: {},
+						btnM: false
+					}
+				},
+				methods: {
+					loadNewsOutland() {
+						var _this = this;
+						$.ajax({
+							url: 'http://127.0.0.1:8080/news/listNewsInland/0',
+							type: 'get',
+							dataType: 'json',
+							success: function(data) {
+								if(data.success) {
+									_this.newsOutland = data.data;
+									/*_this.$message.success(data.message);*/
+								} else {
+									_this.$message.error(data.message);
+								}
+							}
+
+						});
+					}
+				},
+				mounted() {
+					this.user =JSON.parse(sessionStorage.getItem("user"));
+					if(this.user==null) this.btnM = true;
+					else this.username = this.user.name;
+					this.loadNewsOutland();
+				}
+			});
+		</script>
+	</body>
+
+</html>

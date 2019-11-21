@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<script type="text/javascript" src="js/jquery/2.0.0/jquery.min.js"></script>
+		<link rel="stylesheet" href="css/bootstrap/3.3.6/bootstrap.min.css" />
+		<script type="text/javascript" src="js/bootstrap/3.3.6/bootstrap.min.js"></script>
+		<link rel="stylesheet" href="css/style.css" />
+		<link rel="stylesheet" href="css/main.css" />
+		<link rel="stylesheet" href="css/element-ui.css">
+		<script type="text/javascript" src="js/vue.min.js"></script>
+		<script src="js/element-ui.js"></script>
+		<link rel="stylesheet" href="css/buttons.css" />
+		<link rel="shortcut icon" href="img/favicon.ico" />
+		<title>稷下新闻</title>
+	</head>
+
+	<body>
+		<div id="app">
+		<nav class='navbar navbar-inverse navbar-fixed-top'>
+				<div class='container'>
+					<div class='navbar-header'>
+						<a href='#'>
+							<img src='img/Logo.png' />
+							<p>稷下新闻</p>
+						</a>
+					</div>
+					<div class='collapse navbar-collapse' id='example-navbar-collapse'>
+						<ul class='nav navbar-nav _nav'>
+							<li class='active'>
+								<a href='index.html'>
+									<span class='glyphicon glyphicon-home'></span> 首 页</a>
+							</li>
+							<li>
+								<a href='inLand.html'>国内</a>
+							</li>
+							<li>
+								<a href='outLand.html'>国际</a>
+							</li>
+							<li>
+								<a href='#'>军事</a>
+							</li>
+							<li>
+								<a href='gitMaster.html'>图片</a>
+							</li>
+							<li class='dropdown'>
+								<a href='#' class='dropdown-toggle' data-toggle='dropdown'>
+									专题<b class='caret'></b>
+								</a>
+								<ul class='dropdown-menu'>
+									<li>
+										<a href='#'>专题1.0</a>
+									</li>
+									<li>
+										<a href='#'>专题1.1</a>
+									</li>
+									<li>
+										<a href='#'>专题1.2</a>
+									</li>
+									<li class='divider'></li>
+									<li>
+										<a href='#'>专题2.0</a>
+									</li>
+									<li class='divider'></li>
+									<li>
+										<a href='#'>专题3.0</a>
+									</li>
+								</ul>
+							</li>
+						</ul>
+						<div class='navbar-right' style="color: white; margin-top: 10px;">
+							<span>嗨，欢迎来稷下新闻</span>
+							<a href="editInfo.html"><span>{{username}}</span></a>
+							<a href="login_register.html" v-if="btnM" class="button button-primary button-rounded button-small">登录</a>
+						</div>
+
+					</div>
+
+				</div>
+
+			</nav>
+		<div class="container">
+			<div class="main_body boxShadow bg-white">
+				<div class="bg-white newsContent" style="border-radius: 4px;">
+					<div class="newsTitle">
+						{{news.title}}
+					</div>
+					<el-divider></el-divider>
+					<div style="font: 14px ;color: #999;margin-right: 10px;">
+						<span style="margin-right: 5px;">{{news.createtime}}</span>
+						<span>作者：{{news.user.name}}</span>
+						<span>新闻类别：{{news.type.tname}}</span>						
+						<div style="float:right">
+							<span style="font-weight: 700;">{{news.visit}}人浏览</span>
+							<span style="font-weight: 700;">{{news.cnt_comment}}人评论</span>
+						</div>
+					</div>
+					<el-divider></el-divider>
+				</div>
+				<div class="newsContent">
+					<el-row :gutter="20">
+						<el-col :span="18">
+							<div class="grid-content bg-white" v-html="news.content">
+								{{news.content}}
+							</div>
+							<el-divider></el-divider>
+							<div class="grid-content bg-white" style="margin-top: 30px;">
+								<div v-for="(comment, index) in comments" v-if="comment.cid!=0">
+									<div class="f_div">
+										<img src="img/comment.jpg" height="50" width="50" class="img-circle" /> &nbsp;&nbsp;
+										<span style="color: #428bca"> {{comment.user.name}}</span>
+										<span style="float: right;">{{comment.createtime}}</span>
+									</div>
+									<div id="c_content" class="c_left" style="word-wrap: break-word; word-break: normal;">
+										<pre>{{comment.c_content}}</pre>
+									</div>
+									<div class="r_div" v-if="btnDel">
+										<!-- admin here -->
+										<el-button class="btn btn-default" style="color:red;" @click="deleteCm(comment.cid)">删除</el-button>
+									</div>
+									<el-divider></el-divider>
+								</div>
+							</div>
+							<div class="grid-content bg-white" style="margin-top: 30px;" v-if="btnSubCm">
+								<el-input type="textarea" :rows="2" placeholder="请输入内容" v-model="commentNew.c_content">
+								</el-input>
+								<el-button @click="subComment()">评论</el-button>
+							</div>
+						</el-col>
+						<el-col :span="6">
+							<div class="grid-content bg-purple">
+								<el-tabs type="box-card" class="el-card">
+									<el-tab-pane label="点击排行">
+										<div v-for="(news, index) in newsVisit" class="text item" style="font-size: 20px; text-align: center;">
+											<div class="" :label="news.id">
+												<span class="numLeft">{{index+1}}<el-divider direction="vertical"></el-divider></span> {{news.title}}
+											</div>
+										</div>
+									</el-tab-pane>
+									<el-tab-pane label="评论排行">
+										<div v-for="(news, index) in newsComment" class="text item" style="font-size: 20px; text-align: center;">
+											<div class="" :label="news.id">
+												<span class="numLeft">{{index+1}}<el-divider direction="vertical"></el-divider></span> {{news.title}}
+											</div>
+										</div>
+									</el-tab-pane>
+								</el-tabs>
+							</div>
+							<div class="grid-content bg-purple" style="margin-top: 30px;">
+								<el-tabs type="box-card" class="el-card">
+									<el-tab-pane label="推荐新闻">
+										<div v-for="(news, index) in newsRandom" class="text item" style="font-size: 20px; text-align: center;">
+											<div class="" :label="news.id">
+												<span class="numLeft">{{index+1}}<el-divider direction="vertical"></el-divider></span> {{news.title}}
+											</div>
+										</div>
+									</el-tab-pane>
+								</el-tabs>
+							</div>
+						</el-col>
+					</el-row>
+				</div>
+			</div>
+		</div>
+
+		<div class="container footer ">
+			<div class="row ">
+				<div class="ft-link ">
+					<a href="# ">联系我们</a>
+					<span>|</span>
+					<a href="# ">招贤纳士</a>
+					<span>|</span>
+					<a href="# ">投诉建议</a>
+				</div>
+				<div class="ft-rights ">
+					Copyright Chen Xiansen　©1998-2017
+				</div>
+			</div>
+		</div>
+		</div>
+		<script>
+			new Vue({
+				el: '#app',
+				data() {
+					return {
+						nid: '',
+						news: {
+							user:{},
+							type:{}
+						},
+						comments:{},
+						username:'',
+						newsVisit: {},
+						newsComment: {},
+						newsRandom: {},
+						btnDel: false,
+						textarea: '',
+						commentNew:{
+							cid:'',
+							uid:'',
+							nid:'',
+							c_content:'',
+							createtime:''
+						},
+						user: {},
+						btnSubCm:false,
+						btnM:false
+					}
+				},
+				methods: {
+					loadNews() {
+						var _this = this;
+						$.ajax({
+							url: 'http://127.0.0.1:8080/news/listNewsById/' + _this.nid,
+							type: 'get',
+							dataType: 'json',
+							success: function(data) {
+								if(data.success) {
+									_this.news = data.data;
+									console.log(_this.news);
+									_this.loadComment();
+									/*console.log(_this.newsVisit);
+									_this.$message.success(data.message);*/
+								} else {
+									_this.$message.error(data.message);
+								}
+							}
+
+						});
+					},
+					loadComment(){
+						var _this = this;
+						$.ajax({
+							url: 'http://127.0.0.1:8080/comment/listCommentByNid/' + _this.nid,
+							type: 'get',
+							dataType: 'json',
+							success: function(data) {
+								if(data.success) {
+									_this.comments = data.data;
+									console.log(_this.news);
+									/*console.log(_this.newsVisit);
+									_this.$message.success(data.message);*/
+								} else {
+									_this.$message.error(data.message);
+								}
+							}
+
+						});
+					},
+					loadNewsVisit() {
+						var _this = this;
+						$.ajax({
+							url: 'http://127.0.0.1:8080/news/listNewsByVisit',
+							type: 'get',
+							dataType: 'json',
+							success: function(data) {
+								if(data.success) {
+									_this.newsVisit = data.data;
+									/*console.log(_this.newsVisit);
+									_this.$message.success(data.message);*/
+								} else {
+									_this.$message.error(data.message);
+								}
+							}
+
+						});
+					},
+					loadNewsRandom() {
+						var _this = this;
+						$.ajax({
+							url: 'http://127.0.0.1:8080/news/listNewsRandom',
+							type: 'get',
+							dataType: 'json',
+							success: function(data) {
+								if(data.success) {
+									_this.newsRandom = data.data;
+									/*console.log(_this.newsComment);*/
+									/*_this.$message.success(data.message);*/
+								} else {
+									_this.$message.error(data.message);
+								}
+							}
+
+						});
+					},
+					loadNewsComment() {
+						var _this = this;
+						$.ajax({
+							url: 'http://127.0.0.1:8080/news/listNewsByComment',
+							type: 'get',
+							dataType: 'json',
+							success: function(data) {
+								if(data.success) {
+									_this.newsComment = data.data;
+									/*console.log(_this.newsComment);*/
+									/*_this.$message.success(data.message);*/
+								} else {
+									_this.$message.error(data.message);
+								}
+							}
+
+						});
+					},
+					deleteCm(cid){
+						var _this = this;
+						$.ajax({
+							url: 'http://127.0.0.1:8080/comment/delComment/' + cid,
+							type: 'delete',
+							dataType: 'json',
+							success: function(data) {
+								if(data.success) {
+									_this.$message.success(data.message);
+									_this.loadNews();
+								} else {
+									_this.$message.error(data.message);
+								}
+							}
+
+						});
+					},
+					subComment(){
+						var _this = this;
+						_this.commentNew.uid = _this.user.uid;
+						_this.commentNew.nid = _this.news.nid;
+						$.ajax({
+							url: 'http://localhost:8080/comment/addComment',
+							type: 'post',
+							contentType: 'application/json',
+							data: JSON.stringify(_this.commentNew),
+							dataType: 'json',
+							success: function(data) {
+								console.log(data);
+								if(data.success) {
+									_this.$message.success(data.message);
+									_this.loadNews();
+									
+								} else {
+									_this.$message.error(data.message);
+								}
+							}
+						});
+					}
+				},
+				mounted() {
+					this.nid = sessionStorage.getItem("newsId");
+					this.user = JSON.parse(sessionStorage.getItem("user"));
+					if(this.user!=null){
+						if(this.user.user_type == 0) {
+							this.btnDel = true;
+						}
+						this.btnSubCm = true;
+						this.username = this.user.name;
+					}
+					this.loadNews();
+					this.loadNewsComment();
+					this.loadNewsVisit();
+					this.loadNewsRandom();
+				}
+			});
+		</script>>
+	</body>
+
+</html>

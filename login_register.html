@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<script type="text/javascript" src="js/jquery/2.0.0/jquery.min.js"></script>
+		<link rel="stylesheet" href="css/bootstrap/3.3.6/bootstrap.min.css" />
+		<script type="text/javascript" src="js/bootstrap/3.3.6/bootstrap.min.js"></script>
+		<link rel="stylesheet" href="css/style.css" />
+		<link rel="stylesheet" href="css/main.css" />
+		<link rel="stylesheet" href="css/element-ui.css">
+		<script type="text/javascript" src="js/vue.min.js"></script>
+		<script src="js/element-ui.js"></script>
+		<link rel="stylesheet" type="text/css" href="css/login_register.css" />
+		<link rel="shortcut icon" href="img/favicon.ico" />
+		<title></title>
+	</head>
+
+	<body>
+		<div id="app">
+			<div class="container panel panel-default">
+				<h2 class="text-info" style="font-family:华文新魏;font-weight:bold;font-size:49px;text-align: center;">
+				稷下新闻
+			</h2>
+				<div class="panel-body">
+					<ul id="myTab" class="nav nav-tabs">
+						<li class="active">
+							<a href="#login" data-toggle="tab">
+								登录
+							</a>
+						</li>
+						<li>
+							<a href="#register" data-toggle="tab">注册</a>
+						</li>
+					</ul>
+					<div id="myTabContent" class="tab-content">
+						<div class="tab-pane fade in active" id="login">
+							<div class="panel-body">
+								<el-form :model="form" :rules="rules" ref="form" style="margin-top: 30px; ">
+									<el-form-item prop="username">
+										<el-input placeholder="用户名" v-model="form.username"></el-input>
+									</el-form-item>
+									<el-form-item prop="password">
+										<el-input placeholder="请输入密码" v-model="form.password" show-password></el-input>
+									</el-form-item>
+
+									<el-form-item>
+										<el-button type="submit" class="sign-in" @click="onSubmit">登录</el-button>
+									</el-form-item>
+								</el-form>
+							</div>
+						</div>
+						<div class="tab-pane fade" id="register">
+							<div class="panel-body">
+								<form method="post">
+									<el-form :model="form1" :rules="rules" ref="form1">
+										<el-form-item prop="username">
+											<el-input placeholder="用户名" v-model="form1.username"></el-input>
+										</el-form-item>
+										<el-form-item prop="name">
+											<el-input placeholder="昵称" v-model="form1.name"></el-input>
+										</el-form-item>
+										<el-form-item prop="phone">
+											<el-input placeholder="手机号码" v-model="form1.phone"></el-input>
+										</el-form-item>
+										<el-form-item prop="email">
+											<el-input placeholder="email@XX.com" v-model="form1.email"></el-input>
+										</el-form-item>
+										<el-form-item prop="password">
+											<el-input placeholder="请设置登录密码" v-model="form1.password" show-password></el-input>
+										</el-form-item>
+										<el-form-item prop="password1">
+											<el-input placeholder="请再次输入密码" v-model="form1.password1" show-password></el-input>
+										</el-form-item>
+										<el-button type="submit" class="sign-in" @click="onRegister">注册</el-button>
+
+									</el-form>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script>
+			new Vue({
+				el: '#app',
+				data: function() {
+					return {
+						user: {},
+						form: {
+							username: '',
+							password: ''
+						},
+						form1: {
+							username: '',
+							password: '',
+							password1: '',
+							name:'',
+							phone: '',
+							email: ''
+						},
+						rules: {
+							username: [{
+									required: true,
+									message: '请输入用户名',
+									trigger: 'blur'
+								},
+								{
+									min: 1,
+									max: 32,
+									message: '长度在1-32位之间',
+									trigger: 'blur'
+								}
+							],
+							password: [{
+									required: true,
+									message: '请输入密码',
+									trigger: 'blur'
+								},
+								{
+									min: 6,
+									max: 32,
+									message: '长度在6-32位之间',
+									trigger: 'blur'
+								}
+							]
+						}
+
+					}
+				},
+				methods: {
+					openAd() {
+						this.$confirm('您的身份是管理员，即将进入后台界面, 是否继续?', '提示', {
+							confirmButtonText: '确定',
+							cancelButtonText: '取消',
+							type: 'warning'
+						}).then(() => {
+							window.top.location.href = "admin/admin.html";
+						}).catch(() => {
+							this.$message({
+								type: 'info',
+								message: '您将进入新闻首页'
+							});
+							window.top.location.href = "index.html";
+						});
+					},
+					onSubmit() {
+						var _this = this;
+						_this.$refs['form'].validate(function(valid) {
+							if(valid) {
+								$.ajax({
+									url: "http://localhost:8080/user/login",
+									type: "post",
+									data: _this.form,
+									dataType: 'json',
+									success: function(data) {
+										if(data.success) {
+											if(data.code == 2) {
+												_this.$message("登录成功");
+												_this.user = data.data;
+												data.data = JSON.stringify(data.data);
+												sessionStorage.setItem("user", data.data);
+												console.log(data.data);
+												if(_this.user.user_type == 0) {
+													_this.openAd();
+												} else window.top.location.href = "index.html";
+											} else {
+												_this.$message(data.message);
+											}
+										} else {
+											_this.$message(data.message);
+										}
+									}
+								});
+							}
+						});
+					},
+					onresult() {
+						this.form.username = '';
+						this.form.password = '';
+					},
+					onRegister() {
+						var _this = this;
+						if(_this.form1.password != _this.form1.password1) {
+							_this.$message("两次密码不相同，请重新输入");
+							return;
+						}
+						$.ajax({
+							url: "http://localhost:8080/user/addUser",
+							type: "post",
+							contentType: 'application/json',
+							data: JSON.stringify(_this.form1),
+							dataType: 'json',
+							success: function(data) {
+								if(data.success) {
+									_this.$message("注册成功");
+									window.top.location.href = "login_register.html";
+
+								} else {
+									_this.$message(data.message);
+								}
+							}
+						});
+					}
+
+				}
+			});
+		</script>
+	</body>
+
+</html>
